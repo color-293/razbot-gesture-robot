@@ -1,0 +1,7 @@
+venv/
+__pycache__/
+*.pyc
+app.log
+install.log
+affection.json
+hand_landmarker.task
