@@ -38,6 +38,8 @@ def classify(lm):
         return "rock", fingers
     if ext == [True, True, False, False]:
         return "scissors", fingers
+    if ext == [True, False, False, False]:
+        return "point", fingers
     if n >= 4:
         return "paper", fingers
     return "unknown", fingers

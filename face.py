@@ -10,7 +10,9 @@ from PIL import Image, ImageDraw
 W, H = 128, 32
 LX, RX, CY = 40, 88, 16     # eye centers
 
-EXPRESSIONS = ("neutral", "happy", "sleepy", "bored", "surprised", "love", "shy", "sulky", "scared")
+EXPRESSIONS = ("neutral", "happy", "sleepy", "bored", "surprised", "love", "shy", "sulky", "scared",
+               "count1", "count2", "count3", "rps_rock", "rps_paper", "rps_scissors",   # rock-paper-scissors
+               "levelup")
 
 
 def _eye_box(cx, cy, w, h):
@@ -22,6 +24,23 @@ def _heart(d, cx, cy, s):
     d.ellipse((cx - 2 * r, cy - r * 1.6, cx, cy + r * 0.4), fill=255)
     d.ellipse((cx, cy - r * 1.6, cx + 2 * r, cy + r * 0.4), fill=255)
     d.polygon([(cx - 2 * r + 0.5, cy - r * 0.4), (cx + 2 * r - 0.5, cy - r * 0.4), (cx, cy + 2 * r)], fill=255)
+
+
+def _hand(d, shape, cx=64):
+    """The robot's rock-paper-scissors throw, drawn in the middle of the screen."""
+    if shape == "rock":
+        d.ellipse((cx - 13, 3, cx + 13, 29), fill=255)
+        for k in (-6, 0, 6):                      # knuckle creases
+            d.line((cx + k, 5, cx + k, 12), fill=0, width=2)
+    elif shape == "paper":
+        d.rounded_rectangle((cx - 11, 14, cx + 9, 31), radius=4, fill=255)
+        for k in (-9, -3, 3, 9):                  # four fingers
+            d.line((cx + k - 1, 16, cx + k - 1, 1), fill=255, width=4)
+        d.line((cx + 8, 24, cx + 16, 13), fill=255, width=4)   # thumb
+    elif shape == "scissors":
+        d.ellipse((cx - 9, 16, cx + 9, 31), fill=255)
+        d.line((cx - 3, 20, cx - 11, 1), fill=255, width=4)
+        d.line((cx + 3, 20, cx + 11, 1), fill=255, width=4)
 
 
 def render(expr, t):
@@ -69,6 +88,26 @@ def render(expr, t):
             d.rounded_rectangle(_eye_box(cx, CY + 2, 22, 24), radius=5, fill=255)
             top = CY - 11
             d.polygon([(cx - 12, top), (cx + 12, top), (cx + 12, top + 6 + 6 * side), (cx - 12, top + 6 - 6 * side)], fill=0)
+    elif expr.startswith("count"):                # "가위… 바위… 보!": eager eyes + one dot per beat
+        bounce = int(2 * math.sin(t * 14))
+        for cx in (LX, RX):
+            d.rounded_rectangle(_eye_box(cx, CY + bounce, 18, 18), radius=5, fill=255)
+        for i in range(int(expr[-1])):
+            d.ellipse((4, 3 + 10 * i, 10, 9 + 10 * i), fill=255)
+            d.ellipse((118, 3 + 10 * i, 124, 9 + 10 * i), fill=255)
+    elif expr.startswith("rps_"):
+        _hand(d, expr[4:])
+        d.text((4, 11), "!", fill=255)
+        d.text((118, 11), "!", fill=255)
+    elif expr == "levelup":                       # "LEVEL UP!" with twinkling stars
+        d.text((37, 4), "LEVEL  UP!", fill=255)
+        for i, (x, y) in enumerate(((10, 8), (24, 22), (104, 8), (118, 22), (64, 26))):
+            r = 3 if (int(t * 6) + i) % 2 else 1
+            d.line((x - r, y, x + r, y), fill=255)
+            d.line((x, y - r, x, y + r), fill=255)
+        bounce = int(2 * math.sin(t * 8))
+        for cx in (52, 76):                        # happy ^ ^ eyes under the text
+            d.arc((cx - 6, 18 + bounce, cx + 6, 30 + bounce), 200, 340, fill=255, width=2)
     elif expr == "scared":
         shake = 1 if int(t * 20) % 2 else -1          # trembling
         for cx, side in ((LX, 1), (RX, -1)):         # squeezed > < eyes

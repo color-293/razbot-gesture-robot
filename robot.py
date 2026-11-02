@@ -160,6 +160,52 @@ class Robot:
         self.drive(speed, -speed); time.sleep(0.12); self.stop(); time.sleep(0.8)
         self.drive(-40, 40); time.sleep(0.25); self.stop()
 
+    # --- come / follow / nap ---
+    def sit(self, speed=45):
+        """Arrived: a little bow, then settle down (a wheeled robot's 'sit')."""
+        self.drive(-speed, -speed); time.sleep(0.12); self.stop(); time.sleep(0.25)
+        self.drive(speed, speed); time.sleep(0.1); self.stop(); time.sleep(0.4)
+        self.drive(-speed, -speed); time.sleep(0.06); self.stop()
+
+    def lie_down(self, speed=35):
+        """Going to sleep: two slow, heavy nods that fade out."""
+        for t in (0.25, 0.15):
+            self.drive(speed, speed); time.sleep(t); self.stop(); time.sleep(0.7)
+            self.drive(-speed, -speed); time.sleep(t); self.stop(); time.sleep(0.5)
+
+    def wake_up(self, speed=70):
+        """Waking up: a slow stretch (back and forth), then a shake."""
+        self.drive(-40, -40); time.sleep(0.3); self.stop(); time.sleep(0.3)
+        self.drive(40, 40); time.sleep(0.3); self.stop(); time.sleep(0.2)
+        for _ in range(4):
+            self.drive(speed, -speed); time.sleep(0.06)
+            self.drive(-speed, speed); time.sleep(0.06)
+        self.stop()
+
+    # --- trick building blocks (training.py) ---
+    def bow(self, speed=50):
+        """A polite little bow: lean forward, pause, come back."""
+        self.drive(speed, speed); time.sleep(0.15); self.stop(); time.sleep(0.5)
+        self.drive(-speed, -speed); time.sleep(0.15); self.stop()
+
+    def step_forward(self, speed=60):
+        self.forward(speed=speed, t=0.35)
+
+    def step_back(self, speed=60):
+        self.backward(speed=speed, t=0.35)
+
+    def turn_left(self, speed=80):
+        self.drive(-speed, speed); time.sleep(0.35); self.stop()
+
+    def turn_right(self, speed=80):
+        self.drive(speed, -speed); time.sleep(0.35); self.stop()
+
+    def spin_dance(self, speed=100):
+        """Unlocked at a higher level: a quick spin one way, then back the other way."""
+        self.drive(speed, -speed); time.sleep(0.6)
+        self.drive(-speed, speed); time.sleep(0.6)
+        self.stop()
+
     def celebrate(self, speed=90):
         """Goal / home-run celebration: beeps, a full spin, small back-and-forth and left-right moves."""
         try:
