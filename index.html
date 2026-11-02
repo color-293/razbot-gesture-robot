@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#34d1aa">
+<title>라즈봇 · 손짓으로 교감하는 픽셀 친구</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/galmuri@2.39.3/dist/galmuri.css">
+<style>
+ :root{--bg:#e6f5ef;--ink:#1d2b29;--mut:#5e7470;--card:#fff;--line:#d3e9e1;--soft:#f1faf6;
+  --mint:#34d1aa;--mint2:#20b58f;--screen:#0b1a16;--glow:#7dffcf;--bezel:#26332f;--a:#ff6b6b;--b:#ffc94a;--x:#8c7cf0;--y:#4ea8ff;
+  --px:'Galmuri11','Galmuri9',system-ui,sans-serif}
+ *{box-sizing:border-box} html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+ body{margin:0;color:var(--ink);font-family:system-ui,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;line-height:1.6;
+  background:var(--bg) radial-gradient(rgba(29,43,41,.07) 1px,transparent 1.5px) 0 0/14px 14px}
+ a{color:inherit} .px{font-family:var(--px)}
+ .in{max-width:1080px;margin:0 auto;padding:0 24px}
+ .pxb{border:3px solid var(--ink);box-shadow:5px 5px 0 var(--ink)}
+ .btn{display:inline-flex;align-items:center;gap:8px;text-decoration:none;font-family:var(--px);font-size:15px;padding:12px 20px;border-radius:14px;
+   border:3px solid var(--ink);box-shadow:4px 4px 0 var(--ink);background:#fff;transition:transform .08s,box-shadow .08s}
+ .btn:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--ink)}
+ .btn.go{background:var(--mint)}
+ /* nav */
+ .nav{position:sticky;top:0;z-index:5;background:rgba(230,245,239,.9);backdrop-filter:blur(6px);border-bottom:3px solid var(--ink)}
+ .nav .in{display:flex;align-items:center;gap:20px;height:62px}
+ .brand{display:flex;align-items:center;gap:10px;font-family:var(--px);font-size:20px;text-decoration:none}
+ .brand .mini{width:42px;border-radius:6px;background:var(--screen);padding:2px}
+ .brand canvas{display:block;width:100%;image-rendering:pixelated;aspect-ratio:3/2}
+ .links{display:flex;gap:18px;margin-left:auto;font-weight:700;font-size:14px}
+ .links a{text-decoration:none} .links a:hover{color:var(--mint2)}
+ .nav .btn{padding:8px 14px;font-size:13px}
+ @media (max-width:820px){.links{display:none}.nav .btn{margin-left:auto}}
+ /* hero */
+ .hero{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center;padding:64px 0 40px}
+ @media (max-width:860px){.hero{grid-template-columns:1fr;padding-top:36px}}
+ .kicker{font-family:var(--px);font-size:13px;color:var(--mint2)}
+ h1{font-family:var(--px);font-size:46px;line-height:1.25;margin:10px 0 18px;letter-spacing:-1px}
+ h1 mark{background:linear-gradient(transparent 55%,var(--b) 55%);color:inherit}
+ @media (max-width:520px){h1{font-size:34px}}
+ .lead{font-size:17px;color:var(--mut);max-width:520px}
+ .ctas{display:flex;gap:12px;flex-wrap:wrap;margin:26px 0 10px}
+ .small{font-size:13px;color:var(--mut)}
+ .live{display:inline-flex;align-items:center;gap:8px;margin-top:14px;font-family:var(--px);font-size:12px;padding:6px 10px;border-radius:10px;background:#fff;border:2px solid var(--ink)}
+ .live i{width:8px;height:8px;border-radius:50%;background:#9fb5ae}
+ .live.on i{background:#ef4444;box-shadow:0 0 6px #ef4444;animation:blinkd 1.2s infinite}
+ @keyframes blinkd{50%{opacity:.3}}
+ .console{border-radius:28px 28px 54px 28px;padding:18px;background:linear-gradient(160deg,#5fe0bf,var(--mint) 45%,var(--mint2));max-width:420px;margin:0 auto}
+ .bezel{border-radius:14px;padding:14px;background:var(--bezel)}
+ .scr{border-radius:8px;background:var(--screen);cursor:pointer;touch-action:none;position:relative;overflow:hidden}
+ .scr canvas{display:block;width:100%;image-rendering:pixelated;aspect-ratio:3/2;filter:drop-shadow(0 0 2px rgba(125,255,207,.55))}
+ .scr:after{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(255,255,255,.035) 0 1px,transparent 1px 3px)}
+ .say{font-family:var(--px);font-size:13px;color:var(--glow);margin-top:10px;min-height:20px}
+ .keys{display:flex;justify-content:space-between;align-items:center;margin-top:16px;padding:0 6px}
+ .dpad{position:relative;width:70px;height:70px}
+ .dpad:before,.dpad:after{content:"";position:absolute;background:var(--ink);border-radius:5px}
+ .dpad:before{left:24px;top:0;width:22px;height:70px} .dpad:after{top:24px;left:0;width:70px;height:22px}
+ .ab{display:flex;gap:12px;transform:rotate(-20deg)}
+ .ab span{width:44px;height:44px;border-radius:50%;border:3px solid var(--ink);box-shadow:0 4px 0 var(--ink);display:flex;align-items:center;justify-content:center;font-family:var(--px);color:#fff}
+ .ab .a{background:var(--a)} .ab .b{background:var(--b);color:var(--ink)}
+ .cap{text-align:center;font-size:13px;color:var(--mut);margin-top:14px}
+ /* sections */
+ section{padding:56px 0}
+ h2{font-family:var(--px);font-size:30px;margin:0 0 6px;letter-spacing:-.5px}
+ .sub{color:var(--mut);margin:0 0 26px}
+ .three{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+ @media (max-width:820px){.three{grid-template-columns:1fr}}
+ .card{background:#fff;border-radius:18px;padding:22px}
+ .card .ic{font-size:34px} .card h3{font-family:var(--px);font-size:17px;margin:8px 0 6px} .card p{margin:0;color:var(--mut);font-size:15px}
+ .emo{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+ @media (max-width:860px){.emo{grid-template-columns:repeat(2,1fr)}}
+ .emo .card{padding:14px;text-align:center}
+ .emo .mini{border-radius:10px;background:var(--screen);overflow:hidden}
+ .emo canvas{display:block;width:100%;image-rendering:pixelated;aspect-ratio:3/2;filter:drop-shadow(0 0 1.5px rgba(125,255,207,.55))}
+ .emo h3{margin:10px 0 2px} .emo p{font-size:13px}
+ .emo .tag{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--soft);color:var(--mint2);margin-top:6px}
+ .ways{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+ @media (max-width:860px){.ways{grid-template-columns:1fr}}
+ .ways h3{display:flex;align-items:center;gap:8px} .ways h3 small{font-family:system-ui;font-size:11px;padding:2px 8px;border-radius:999px;background:var(--soft);color:var(--mut)}
+ .rows{margin-top:10px}
+ .rows div{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:9px 0;border-top:2px dashed var(--line);font-size:14px}
+ .rows div:first-child{border-top:0} .rows b{font-weight:800} .rows span{color:var(--mut)}
+ .path{display:flex;align-items:center;justify-content:space-between;gap:6px;margin:6px 0 26px;flex-wrap:wrap}
+ .path div{text-align:center;flex:1;min-width:90px} .path b{display:block;font-size:40px;line-height:1.2} .path span{font-family:var(--px);font-size:12px}
+ .path i{flex:none;font-style:normal;font-family:var(--px);color:var(--mint2)}
+ .unl{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+ @media (max-width:860px){.unl{grid-template-columns:repeat(2,1fr)}}
+ .unl div{background:#fff;border:3px solid var(--ink);border-radius:14px;padding:10px 12px;font-size:13px}
+ .unl b{font-family:var(--px);font-size:12px;color:#fff;background:var(--ink);padding:2px 6px;border-radius:6px}
+ .unl p{margin:6px 0 0;color:var(--ink)}
+ .gauge3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:22px}
+ @media (max-width:820px){.gauge3{grid-template-columns:1fr}}
+ .segs{display:flex;gap:3px;margin:8px 0}
+ .segs i{flex:1;height:14px;border-radius:3px;background:var(--line)} .segs i.on{background:var(--mint2)}
+ .play{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+ @media (max-width:820px){.play{grid-template-columns:1fr}}
+ .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;counter-reset:s}
+ @media (max-width:820px){.steps{grid-template-columns:1fr}}
+ .steps .card:before{counter-increment:s;content:counter(s);display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:10px;
+   background:var(--ink);color:var(--glow);font-family:var(--px);margin-bottom:8px}
+ code{font-family:ui-monospace,Consolas,monospace;font-size:13px;background:var(--soft);padding:2px 6px;border-radius:6px}
+ .final{text-align:center;padding:56px 24px;border-radius:26px;background:var(--ink);color:#fff}
+ .final h2{color:var(--glow)} .final p{color:#a9c2bb}
+ footer{text-align:center;padding:30px 0 40px;font-size:13px;color:var(--mut)}
+</style></head><body>
+
+<div class="nav"><div class="in">
+ <a class="brand" href="#"><span class="mini"><canvas id="logo"></canvas></span>라즈봇</a>
+ <div class="links"><a href="#emotions">감정</a><a href="#how">교감 방법</a><a href="#grow">키우기</a><a href="#play">놀기</a><a href="#start">시작하기</a></div>
+ <a class="btn go" href="app">▶ 앱 열기</a>
+</div></div>
+
+<div class="in">
+ <div class="hero">
+  <div>
+   <div class="kicker">RASPBERRY PI · 감정 교감 로봇 프로젝트</div>
+   <h1>손짓 하나에<br>웃고, 삐지고, 자라는<br><mark>픽셀 친구 라즈봇</mark></h1>
+   <p class="lead">라즈봇은 카메라로 내 손짓을 읽고, 얼굴(OLED)·몸짓(바퀴)·소리(부저)로 마음을 표현해요. 잘 대해 주면 레벨이 오르고, 할 수 있는 교감이 하나씩 늘어나요.</p>
+   <div class="ctas"><a class="btn go" href="app">▶ 앱에서 만나기</a><a class="btn" href="#how">어떻게 놀아요?</a></div>
+   <div class="small">설치 없이 브라우저로 바로 열려요 · 홈 화면에 추가하면 앱처럼 쓸 수 있어요</div>
+   <div class="live" id="live"><i></i><span id="livetxt">로봇 연결 확인 중…</span></div>
+  </div>
+  <div>
+   <div class="console pxb">
+    <div class="bezel"><div class="scr" id="scr"><canvas id="hero"></canvas></div><div class="say" id="say">안녕! 나는 라즈봇이야</div></div>
+    <div class="keys"><div class="dpad"></div><div class="ab"><span class="b">B</span><span class="a">A</span></div></div>
+   </div>
+   <div class="cap">👀 눈이 커서를 따라가요 · 콕 누르면 표정이 바뀌고, 문지르면 좋아해요</div>
+  </div>
+ </div>
+</div>
+
+<section><div class="in">
+ <h2>장난감이 아니라, 마음이 있는 친구</h2><p class="sub">게임은 교감을 더 즐겁게 만드는 보너스예요.</p>
+ <div class="three">
+  <div class="card pxb"><div class="ic">💗</div><h3>감정이 먼저</h3><p>인사하고, 칭찬하고, 쓰다듬는 작은 교감이 쌓여요. 오래 안 놀아 주면 심심해하다 삐지고, 위협하면 무서워해요. 왜 그런 기분인지도 알려 줘요.</p></div>
+  <div class="card pxb"><div class="ic">🤖</div><h3>진짜 몸으로 표현</h3><p>화면 속 캐릭터가 아니라 진짜 로봇이에요. OLED 얼굴 표정, 바퀴로 하는 몸짓, 부저 리듬으로 기분을 보여 줘요.</p></div>
+  <div class="card pxb"><div class="ic">🌱</div><h3>같이 자라요</h3><p>교감할수록 호감도가 쌓여 레벨이 올라요. 🐣 아기봇에서 👑 단짝봇까지, 레벨마다 새로운 교감과 개인기를 배워요.</p></div>
+ </div>
+</div></section>
+
+<section id="emotions"><div class="in">
+ <h2>8가지 감정</h2><p class="sub">라즈봇의 얼굴은 실제 로봇 OLED 화면과 같은 픽셀 얼굴이에요. 기분마다 행동도 달라요.</p>
+ <div class="emo" id="emo"></div>
+</div></section>
+
+<section id="how"><div class="in">
+ <h2>교감하는 세 가지 방법</h2><p class="sub">카메라 앞 손짓이 기본이고, 앱 버튼과 화면 터치로도 함께해요.</p>
+ <div class="ways">
+  <div class="card pxb"><h3>✋ 손짓 <small>로봇 카메라</small></h3><div class="rows">
+   <div><b>👋 빠르게 흔들기</b><span>인사 (아침·낮·밤)</span></div><div><b>🤚 천천히 좌우로</b><span>쓰담쓰담 → 하트 눈</span></div>
+   <div><b>✋ 손바닥 멈추기</b><span>하이파이브</span></div><div><b>👍 엄지 척</b><span>칭찬 → 부끄부끄</span></div>
+   <div><b>✌️ 가위 1초</b><span>가위바위보 하자!</span></div><div><b>🤏 까딱까딱</b><span>이리 와</span></div>
+   <div><b>☝️ 검지 1초</b><span>따라와</span></div><div><b>🖐️ 천천히 내리기</b><span>자장자장 낮잠</span></div>
+   <div><b>👊 주먹 휘두르기</b><span>깜짝 놀라 벌벌</span></div></div></div>
+  <div class="card pxb"><h3>🎮 버튼 <small>앱</small></h3><div class="rows">
+   <div><b>A 🍪 간식</b><span>하루 3번, 냠냠</span></div><div><b>B 💤 재우기</b><span>에너지 회복</span></div>
+   <div><b>X ✌️ 가위바위보</b><span>3판 2선승</span></div><div><b>Y 🐶 이리 와</b><span>손 쪽으로 와요</span></div>
+   <div><b>🎓 개인기 훈련</b><span>👍로 칭찬해 가르치기</span></div><div><b>⚽ 같이 경기 보기</b><span>골에 세레머니</span></div></div></div>
+  <div class="card pxb"><h3>👆 터치 <small>앱 화면</small></h3><div class="rows">
+   <div><b>콕 누르기</b><span>간지러워 헤헤</span></div><div><b>좌우로 문지르기</b><span>쓰다듬기 → 사랑</span></div>
+   <div><b>너무 많이 콕콕</b><span>어지러워요 @_@</span></div><div><b>손가락 움직이기</b><span>눈으로 따라봐요</span></div>
+   <div><b>카메라에 손 보이기</b><span>진짜 손을 쳐다봐요</span></div></div></div>
+ </div>
+</div></section>
+
+<section id="grow"><div class="in">
+ <h2>같이 자라요</h2><p class="sub">교감할 때마다 호감도가 쌓이고, 레벨이 오르면 새로운 교감을 배워요.</p>
+ <div class="path"><div><b>🐣</b><span>Lv.1 아기봇</span></div><i>▶</i><div><b>🐥</b><span>Lv.3 꼬마봇</span></div><i>▶</i>
+  <div><b>🤖</b><span>Lv.5 친구봇</span></div><i>▶</i><div><b>🦾</b><span>Lv.8 든든봇</span></div><i>▶</i><div><b>👑</b><span>Lv.10 단짝봇</span></div></div>
+ <div class="unl">
+  <div><b>Lv.1</b><p>👋 인사 · 🤚 쓰담 · 🍪 간식 · 💤 재우기 · ⚽ 경기 · 🕹️ 운전</p></div>
+  <div><b>Lv.2</b><p>✋ 하이파이브</p></div><div><b>Lv.3</b><p>👍 칭찬 · 🎓 개인기 훈련</p></div>
+  <div><b>Lv.4</b><p>🙇 꾸벅 인사</p></div><div><b>Lv.5</b><p>✌️ 가위바위보</p></div>
+  <div><b>Lv.6</b><p>🥺 먼저 놀자고 조르기</p></div><div><b>Lv.7</b><p>🐶 이리 와</p></div>
+  <div><b>Lv.8</b><p>👣 따라와</p></div><div><b>Lv.9</b><p>🥰 애교 (노래·빙글 춤)</p></div><div><b>Lv.10</b><p>🎬 나만의 개인기</p></div>
+ </div>
+ <div class="gauge3">
+  <div class="card pxb"><h3>⚡ 에너지</h3><div class="segs" data-v="70"></div><p>낮잠·밤잠으로 회복. 다 떨어지면 졸려서 게임도 거절해요.</p></div>
+  <div class="card pxb"><h3>🎈 재미</h3><div class="segs" data-v="40"></div><p>가위바위보·산책·골 응원으로 채워요. 부족하면 심심해해요.</p></div>
+  <div class="card pxb"><h3>💗 애정</h3><div class="segs" data-v="90"></div><p>쓰담·칭찬·간식으로 채워요. 위협하면 확 줄어요.</p></div>
+ </div>
+ <div class="three" style="margin-top:18px">
+  <div class="card pxb"><div class="ic">📋</div><h3>오늘의 할 일</h3><p>매일 바뀌는 할 일 3개. 하나에 +5, 다 하면 보너스 +10. 연속으로 놀면 🔥 연속 기록도 쌓여요.</p></div>
+  <div class="card pxb"><div class="ic">🎓</div><h3>개인기 훈련</h3><p>라즈봇이 해 보면 👍로 칭찬! 3번 칭찬받으면 배워요. Lv.10엔 동작을 조합해 나만의 개인기를 만들어요.</p></div>
+  <div class="card pxb"><div class="ic">📷</div><h3>추억</h3><p>처음 만난 날, 레벨 업, 첫 승리, 개인기를 배운 날… 함께한 순간이 자동으로 기록돼요.</p></div>
+ </div>
+</div></section>
+
+<section id="play"><div class="in">
+ <h2>같이 놀기</h2><p class="sub">이기고 지는 것보다 그 뒤의 감정이 중요해요. 지면 삐지고, 이기면 으쓱해요.</p>
+ <div class="play">
+  <div class="card pxb"><div class="ic">✌️</div><h3>가위바위보</h3><p>"가위, 바위, 보!" 구호에 맞춰 손을 내면 라즈봇은 얼굴에 자기 손을 띄워요. 친해질수록 져도 "축하해!" 하고 웃어 줘요.</p></div>
+  <div class="card pxb"><div class="ic">⚽</div><h3>같이 경기 보기</h3><p>카메라를 TV에 비추면 AI가 골·홈런 장면을 알아보고 한 바퀴 세레머니! 같이 응원하면 기분도 풀려요.</p></div>
+  <div class="card pxb"><div class="ic">🐶</div><h3>이리 와 · 따라와</h3><p>손짓으로 부르면 달려와서 꾸벅, 검지를 들면 손을 졸졸 따라다녀요.</p></div>
+  <div class="card pxb"><div class="ic">🕹️</div><h3>손으로 운전</h3><p>✌️ 전진, ✋ 후진, ✊ 정지. 손이 안 보이면 알아서 멈춰요.</p></div>
+ </div>
+</div></section>
+
+<section id="start"><div class="in">
+ <h2>시작하기</h2><p class="sub">라즈베리파이와 휴대폰이 같은 와이파이에 있으면 돼요.</p>
+ <div class="steps">
+  <div class="card pxb"><h3>로봇 켜기</h3><p>라즈베리파이에서 <code>./run.sh</code> 를 실행해요.</p></div>
+  <div class="card pxb"><h3>주소 열기</h3><p>휴대폰이나 PC 브라우저에서 <code>http://&lt;라즈베리파이 IP&gt;:5000</code></p></div>
+  <div class="card pxb"><h3>앱 열기</h3><p>"앱 열기"를 누르고, 홈 화면에 추가하면 앱처럼 쓸 수 있어요.</p></div>
+ </div>
+ <div class="final pxb" style="margin-top:40px"><h2>라즈봇이 기다리고 있어요</h2><p>오늘 인사 한 번이면, 내일은 먼저 반겨 줄지도 몰라요.</p><a class="btn go" href="app">▶ 앱 열기</a></div>
+</div></section>
+<footer>라즈봇 · Raspberry Pi 5 + Raspbot V2 · 손짓 인식 감정 교감 로봇</footer>
+
+<script src="pixel.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+const MOODS=[['neutral','😐 평온','특별한 일이 없을 때','두리번두리번 주변 살피기'],['happy','😊 기쁨','인사·하이파이브·간식·게임','들썩들썩 신나서 춤추기'],
+ ['love','🥰 사랑','쓰다듬거나 칭찬할 때','살금살금 다가가 비비기'],['shy','☺️ 부끄럼','칭찬받고 쑥스러울 때','꼼지락꼼지락 몸 비틀기'],
+ ['bored','🥱 심심','안 놀아 줄 때','어슬렁거리다 "놀아줘~"'],['sleepy','😴 졸림','밤, 에너지 부족','꾸벅꾸벅 졸기'],
+ ['sulky','😤 삐짐','"놀아줘"를 3번 무시하면','흥! 하고 고개 홱'],['scared','😨 무서움','주먹을 휘두르면','벌벌 떨며 뒷걸음']];
+$('emo').innerHTML=MOODS.map(m=>'<div class="card pxb"><div class="mini"><canvas data-f="'+m[0]+'"></canvas></div><h3>'+m[1]+'</h3><p>'+m[2]+'</p><span class="tag">'+m[3]+'</span></div>').join('');
+document.querySelectorAll('#emo canvas').forEach(c=>Pixel.mount(c,{face:()=>c.dataset.f}));
+Pixel.mount($('logo'),{face:()=>'happy',gaze:()=>({x:0,y:0})});
+document.querySelectorAll('.segs').forEach(s=>{const on=Math.round(s.dataset.v/10); s.innerHTML=[...Array(10)].map((_,i)=>'<i class="'+(i<on?'on':'')+'"></i>').join('');});
+
+// hero: the real robot's mood when it is reachable, and your own play when you touch it
+const CYCLE=['happy','love','surprised','shy','sleepy','sulky','scared','bored'], LINES={happy:'헤헤, 기분 최고야!',love:'네가 정말 좋아 💕',surprised:'깜짝이야!',
+ shy:'부끄러워…',sleepy:'졸려… 쿨쿨',sulky:'흥! 😤',scared:'무, 무서워…',bored:'심심해… 놀아 줘',neutral:'안녕! 나는 라즈봇이야',dizzy:'어지러워… @_@',squeeze:'콕! 간지러워'};
+let live=null, local=null, ci=0;
+const pointer=Pixel.pointerGaze($('hero'));
+const face=()=>local&&performance.now()<local.until?local.face:(live||'neutral');
+Pixel.mount($('hero'),{face,gaze:pointer});
+function show(f,ms){ local={face:f,until:performance.now()+ms}; $('say').textContent=LINES[f]||''; }
+Pixel.touch($('scr'),{poke:()=>{ show(CYCLE[ci++%CYCLE.length],2200); },stroke:()=>show('love',2200),dizzy:()=>show('dizzy',2500)});
+async function poll(){
+ try{ const m=await (await fetch('/mood',{cache:'no-store'})).json();
+  live=['neutral','happy','love','shy','bored','sleepy','sulky','scared'].includes(m.mood)?m.mood:'neutral';
+  $('live').classList.add('on'); $('livetxt').textContent='LIVE · 지금 라즈봇은 '+{neutral:'평온',happy:'기쁨',love:'사랑',shy:'부끄럼',bored:'심심',sleepy:'졸림',sulky:'삐짐',scared:'무서움'}[live]+' · Lv.'+m.growth.level;
+  if(!local||performance.now()>local.until) $('say').textContent=LINES[live];
+ }catch(e){ $('live').classList.remove('on'); $('livetxt').textContent='로봇과 연결되면 실시간 기분이 보여요'; }
+ setTimeout(poll,2000);
+}
+poll();
+</script></body></html>
